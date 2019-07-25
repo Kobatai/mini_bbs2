@@ -18,8 +18,21 @@ if(!empty($_POST)){
     $error['password']= 'blank';
   }
 
+  $filename = $_FILES['image']['name'];
+  if(!empty($filename)){
+    $ext = substr($fileName, -3);
+    if ($ext != 'jpg' && $ext != 'gif' && $ext != 'ping'){
+      $error['image'] = 'type';
+    }
+  }
+
+
   if(empty($error)){
+    //ファイル名に時間を付加することで一意の名前にする
+    $image = date('YmdHis') . $_FILES['image']['name'];
+    move_uploaded_file($_FILES['image']['tmp_name'], '../member_picture/'. $image );
     $_SESSION['join'] = $_POST;
+    $_SESSION['join']['image'] = $image;
     header('Location: check.php');
     exit();
   }
@@ -75,6 +88,9 @@ if($_REQUEST['action'] == 'rewrite' && isset($_SESSION['join'])){
 		<dt>写真など</dt>
 		<dd>
         	<input type="file" name="image" size="35" value="test"  />
+          <?php if($error['image']==='type'): ?>
+            <p class = "error">写真などは[.gif]または[.jpg],[.png]の画像を指定してください</p>
+          <?php endif; ?>
         </dd>
 	</dl>
 	<div><input type="submit" value="入力内容を確認する" /></div>
